@@ -32,14 +32,14 @@ type Watching struct {
 	Balance string
 }
 
-// Connect to AElf node
+// TODO: Connect to AElf node
 func ConnectToAElf(url string) error {
 	var err error
 	aelfClient, err = client.NewAElfClient(url)
 	return err
 }
 
-// Fetch balance from AElf node
+// TODO: Fetch balance from AElf node
 func GetAElfBalance(address string) *big.Float {
 	balance, err := aelfClient.GetBalance(context.TODO(), address, "ELF")
 	if err != nil {
