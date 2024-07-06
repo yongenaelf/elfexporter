@@ -1,8 +1,8 @@
 FROM golang
 
-ADD . /go/src/github.com/hunterlong/ethexporter
-RUN cd /go/src/github.com/hunterlong/ethexporter && go get
-RUN go install github.com/hunterlong/ethexporter
+ADD . /go/src/github.com/yongenaelf/elfexporter
+RUN cd /go/src/github.com/yongenaelf/elfexporter && go get
+RUN go install github.com/yongenaelf/elfexporter
 
 ENV GETH https://mainnet.infura.io
 ENV PORT 9015
@@ -13,4 +13,4 @@ ADD addresses.txt /app
 
 EXPOSE 9015
 
-ENTRYPOINT /go/bin/ethexporter
+ENTRYPOINT /go/bin/elfexporter
