@@ -32,6 +32,7 @@ type Watching struct {
 	Balance string
 }
 
+// Reference: https://docs.aelf.com/tools/chain-sdk/go-sdk/
 // TODO: Connect to AElf node
 func ConnectToAElf(url string) error {
 	var err error
