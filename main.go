@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/AElfProject/aelf-sdk.go/client"
+	"github.com/AElfProject/aelf-sdk.go/model/consts"
 	pb "github.com/AElfProject/aelf-sdk.go/protobuf/generated"
 	"github.com/AElfProject/aelf-sdk.go/utils"
 	"google.golang.org/protobuf/proto"
@@ -44,28 +45,37 @@ func TokenContractAddress() error {
 
 // TODO: Fetch balance from AElf node
 func GetAElfBalance(fromAddress string) string {
-	ownerAddress, _ := utils.Base58StringToAddress(fromAddress)
-	getBalanceInput := &pb.GetBalanceInput{
-			Symbol: "ELF",
-			Owner:  ownerAddress,
-	}
-	getBalanceInputByte, _ := proto.Marshal(getBalanceInput)
+	balance, _ := getTokenBalance("ELF", fromAddress)
 
-	getBalanceTransaction, _ := aelf.CreateTransaction(fromAddress, tokenContractAddress, "GetBalance", getBalanceInputByte)
-	getBalanceTransaction.Params = getBalanceInputByte
-	getBalanceSignature, _ := aelf.SignTransaction(aelf.PrivateKey, getBalanceTransaction)
-	getBalanceTransaction.Signature = getBalanceSignature
+	fmt.Println("Balance", balance.Balance, fromAddress)
 
-	getBalanceTransactionBytes, _ := proto.Marshal(getBalanceTransaction)
-
-	getBalanceResult, _ := aelf.ExecuteTransaction(hex.EncodeToString(getBalanceTransactionBytes))
-	balance := &pb.GetBalanceOutput{}
-	getBalanceResultBytes, _ := hex.DecodeString(getBalanceResult)
-	proto.Unmarshal(getBalanceResultBytes, balance)
-
-	fmt.Println(getBalanceResult)
-	fmt.Println(fromAddress, balance.Balance, balance.Owner, balance.Symbol)
 	return strconv.Itoa(int(balance.Balance))
+}
+
+// https://github.com/AElfProject/aelf-sdk.go/blob/c4ac0b72447916e1130d2021df92c70e88544b58/test/transaction_test.go#L524
+func getTokenBalance(symbol, owner string) (*pb.GetBalanceOutput, error) {
+	tokenContractAddr, _ := aelf.GetContractAddressByName(consts.TokenContractSystemName)
+	addr := aelf.GetAddressFromPrivateKey(aelf.PrivateKey)
+	ownerAddr, err := utils.Base58StringToAddress(owner)
+	if err != nil {
+		return &pb.GetBalanceOutput{}, err
+	}
+	inputByte, _ := proto.Marshal(&pb.GetBalanceInput{
+		Symbol: symbol,
+		Owner:  ownerAddr,
+	})
+
+	tx, _ := aelf.CreateTransaction(addr, tokenContractAddr, consts.TokenContractGetBalance, inputByte)
+	tx.Signature, _ = aelf.SignTransaction(aelf.PrivateKey, tx)
+
+	txByets, _ := proto.Marshal(tx)
+	re, _ := aelf.ExecuteTransaction(hex.EncodeToString(txByets))
+
+	balance := &pb.GetBalanceOutput{}
+	bytes, _ := hex.DecodeString(re)
+	proto.Unmarshal(bytes, balance)
+
+	return balance, nil
 }
 
 // HTTP response handler for /metrics
