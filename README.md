@@ -33,6 +33,13 @@ d:2W4cT6Z3WJ2AVehTnZ6psKQEE2ZPc2mhv9Q7K3as2aNvKP7cn7
 
 This will start the AElf balance exporter, which will check the balances every 15 seconds and expose the data on the specified HTTP port.
 
+4. Build docker using ko (locally for testing):
+
+```sh
+brew install ko
+KO_DOCKER_REPO=ko.local KO_DEFAULTPLATFORMS=linux/arm64,linux/amd64 ko build .
+```
+
 ## Grafana Dashboard
 TODO: Something like [this](https://grafana.com/dashboards/6970)
 

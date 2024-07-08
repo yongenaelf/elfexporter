@@ -23,14 +23,13 @@ services:
       - ./grafana:/etc/grafana/provisioning/datasources
   elfexporter:
     image: yongenaelf/elfexporter
-    build:
-      context: .
-      dockerfile: ./Dockerfile
     environment:
       - AELF_URL=https://tdvw-test-node.aelf.io
       - PORT=8080
       - PREFIX=""
       - SLEEP_DURATION=15
+    volumes:
+      - ./addresses.txt:/addresses.txt
       
 volumes:
   prom_data:
