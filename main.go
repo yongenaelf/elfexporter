@@ -91,7 +91,7 @@ func MetricsHttp(w http.ResponseWriter, r *http.Request) {
 		total.Add(total, bal)
 		allOut = append(allOut, fmt.Sprintf("%vaelf_balance{name=\"%v\",address=\"%v\"} %v", prefix, v.Name, v.Address, v.Balance))
 	}
-	allOut = append(allOut, fmt.Sprintf("%vaelf_balance_total %0.18f", prefix, total))
+	allOut = append(allOut, fmt.Sprintf("%vaelf_balance_total %0.8f", prefix, total))
 	allOut = append(allOut, fmt.Sprintf("%vaelf_load_seconds %0.2f", prefix, loadSeconds))
 	allOut = append(allOut, fmt.Sprintf("%vaelf_loaded_addresses %v", prefix, totalLoaded))
 	allOut = append(allOut, fmt.Sprintf("%vaelf_total_addresses %v", prefix, len(allWatching)))
