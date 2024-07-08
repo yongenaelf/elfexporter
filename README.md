@@ -14,6 +14,7 @@ export AELF_URL="http://127.0.0.1:8000"
 export PORT="8080"
 export PREFIX="my_aelf"
 export SLEEP_DURATION="15"
+export TOKEN_CONTRACT_ADDRESS=""
 ```
 
 2. Create the `addresses.txt` file:
@@ -28,7 +29,7 @@ d:2W4cT6Z3WJ2AVehTnZ6psKQEE2ZPc2mhv9Q7K3as2aNvKP7cn7
 3. Run the Exporter:
 
 ```sh
-go run main.go
+./bin/air
 ```
 
 This will start the AElf balance exporter, which will check the balances every 15 seconds and expose the data on the specified HTTP port.

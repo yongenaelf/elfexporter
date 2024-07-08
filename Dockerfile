@@ -1,16 +1,11 @@
-FROM golang
+FROM cgr.dev/chainguard/go:latest AS build
 
-ADD . /go/src/github.com/yongenaelf/elfexporter
-RUN cd /go/src/github.com/yongenaelf/elfexporter && go get
-RUN go install github.com/yongenaelf/elfexporter
+WORKDIR /work
 
-ENV AELF_URL https://tdvw-test-node.aelf.io
-ENV PORT 8080
+COPY ./ .
+RUN go build -o app .
 
-RUN mkdir /app
-WORKDIR /app
-ADD addresses.txt /app
+FROM cgr.dev/chainguard/static:latest
 
-EXPOSE 8080
-
-ENTRYPOINT /go/bin/elfexporter
+COPY --from=build /work/app /app
+CMD ["/app"]

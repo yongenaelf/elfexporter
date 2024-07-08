@@ -1,0 +1,20 @@
+# The .dockerignore file excludes files from the container build process.
+#
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+
+# Exclude locally vendored dependencies.
+vendor/
+grafana/
+prometheus/
+compose.yaml
+LICENSE
+prometheus.yml
+README.md
+
+# Exclude "build-time" ignore files.
+.dockerignore
+.gcloudignore
+
+# Exclude git history and configuration.
+.gitignore
+.git

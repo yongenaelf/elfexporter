@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"context"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"math/big"
@@ -13,6 +13,9 @@ import (
 	"time"
 
 	"github.com/AElfProject/aelf-sdk.go/client"
+	pb "github.com/AElfProject/aelf-sdk.go/protobuf/generated"
+	"github.com/AElfProject/aelf-sdk.go/utils"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -22,8 +25,9 @@ var (
 	prefix       string
 	loadSeconds  float64
 	totalLoaded  int64
-	aelfClient   *client.AElfClient
+	aelf   client.AElfClient
 	sleepSeconds int
+	tokenContractAddress string
 )
 
 type Watching struct {
@@ -32,22 +36,33 @@ type Watching struct {
 	Balance string
 }
 
-// Reference: https://docs.aelf.com/tools/chain-sdk/go-sdk/
-// TODO: Connect to AElf node
-func ConnectToAElf(url string) error {
+func TokenContractAddress() error {
 	var err error
-	aelfClient, err = client.NewAElfClient(url)
+	tokenContractAddress, err = aelf.GetContractAddressByName("AElf.ContractNames.Token")
 	return err
 }
 
 // TODO: Fetch balance from AElf node
-func GetAElfBalance(address string) *big.Float {
-	balance, err := aelfClient.GetBalance(context.TODO(), address, "ELF")
-	if err != nil {
-		log.Printf("Error fetching balance for address: %v\n", address)
-		return big.NewFloat(0)
+func GetAElfBalance(fromAddress string) string {
+	ownerAddress, _ := utils.Base58StringToAddress(fromAddress)
+	getBalanceInput := &pb.GetBalanceInput{
+			Symbol: "ELF",
+			Owner:  ownerAddress,
 	}
-	return new(big.Float).SetFloat64(balance.Balance)
+	getBalanceInputByte, _ := proto.Marshal(getBalanceInput)
+
+	getBalanceTransaction, _ := aelf.CreateTransaction(fromAddress, tokenContractAddress, "GetBalance", getBalanceInputByte)
+	getBalanceTransaction.Params = getBalanceInputByte
+	getBalanceSignature, _ := aelf.SignTransaction(aelf.PrivateKey, getBalanceTransaction)
+	getBalanceTransaction.Signature = getBalanceSignature
+
+	getBalanceTransactionBytes, _ := proto.Marshal(getBalanceTransaction)
+	getBalanceResult, _ := aelf.ExecuteTransaction(hex.EncodeToString(getBalanceTransactionBytes))
+	balance := &pb.GetBalanceOutput{}
+	getBalanceResultBytes, _ := hex.DecodeString(getBalanceResult)
+	proto.Unmarshal(getBalanceResultBytes, balance)
+	fmt.Println(fromAddress, balance.Balance)
+	return strconv.Itoa(int(balance.Balance))
 }
 
 // HTTP response handler for /metrics
@@ -106,8 +121,11 @@ func main() {
 	prefix = os.Getenv("PREFIX")
 	sleepDuration := os.Getenv("SLEEP_DURATION")
 
-	if aelfUrl == "" || port == "" || prefix == "" || sleepDuration == "" {
-		log.Fatal("Environment variables AELF_URL, PORT, PREFIX, and SLEEP_DURATION must be set")
+	if aelfUrl == "" {
+		aelfUrl = "https://tdvw-test-node.aelf.io"
+	}
+	if sleepDuration == "" {
+		sleepDuration = "15"
 	}
 
 	var err error
@@ -121,9 +139,15 @@ func main() {
 		log.Fatalf("Failed to open addresses.txt: %v", err)
 	}
 
-	err = ConnectToAElf(aelfUrl)
+	aelf = client.AElfClient{
+		Host:       aelfUrl,
+		Version:    "1.0",
+		PrivateKey: "cd86ab6347d8e52bbbe8532141fc59ce596268143a308d1d40fedf385528b458",
+	}
+
+	err = TokenContractAddress()
 	if err != nil {
-		log.Fatalf("Failed to connect to AElf node: %v", err)
+		log.Fatalf("Failed to get token contract address: %v", err)
 	}
 
 	// Check address balances
@@ -133,7 +157,7 @@ func main() {
 			t1 := time.Now()
 			log.Printf("Checking %v wallets...\n", len(allWatching))
 			for _, v := range allWatching {
-				v.Balance = GetAElfBalance(v.Address).String()
+				v.Balance = GetAElfBalance(v.Address)
 				totalLoaded++
 			}
 			t2 := time.Now()
