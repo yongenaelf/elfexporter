@@ -26,7 +26,7 @@ services:
     environment:
       - AELF_URL=https://tdvw-test-node.aelf.io
       - PORT=8080
-      - PREFIX=""
+      - PREFIX=
       - SLEEP_DURATION=15
     volumes:
       - ./addresses.txt:/addresses.txt
