@@ -57,11 +57,14 @@ func GetAElfBalance(fromAddress string) string {
 	getBalanceTransaction.Signature = getBalanceSignature
 
 	getBalanceTransactionBytes, _ := proto.Marshal(getBalanceTransaction)
+
 	getBalanceResult, _ := aelf.ExecuteTransaction(hex.EncodeToString(getBalanceTransactionBytes))
 	balance := &pb.GetBalanceOutput{}
 	getBalanceResultBytes, _ := hex.DecodeString(getBalanceResult)
 	proto.Unmarshal(getBalanceResultBytes, balance)
-	fmt.Println(fromAddress, balance.Balance)
+
+	fmt.Println(getBalanceResult)
+	fmt.Println(fromAddress, balance.Balance, balance.Owner, balance.Symbol)
 	return strconv.Itoa(int(balance.Balance))
 }
 
@@ -127,6 +130,9 @@ func main() {
 	if sleepDuration == "" {
 		sleepDuration = "15"
 	}
+	if port == "" {
+		port = "8080"
+	}
 
 	var err error
 	sleepSeconds, err = strconv.Atoi(sleepDuration)
@@ -142,7 +148,7 @@ func main() {
 	aelf = client.AElfClient{
 		Host:       aelfUrl,
 		Version:    "1.0",
-		PrivateKey: "cd86ab6347d8e52bbbe8532141fc59ce596268143a308d1d40fedf385528b458",
+		PrivateKey: "f8e2276368f3008831587c5cd993577816331ee55774396f1718964e00146e4d",
 	}
 
 	err = TokenContractAddress()

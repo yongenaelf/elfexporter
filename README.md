@@ -10,11 +10,10 @@ The `addresses.txt` file holds all the addresses to fetch balances for. Use the 
 1. Set Environment Variables:
 
 ```sh
-export AELF_URL="http://127.0.0.1:8000"
+export AELF_URL="https://tdvw-test-node.aelf.io"
 export PORT="8080"
 export PREFIX="my_aelf"
 export SLEEP_DURATION="15"
-export TOKEN_CONTRACT_ADDRESS=""
 ```
 
 2. Create the `addresses.txt` file:
