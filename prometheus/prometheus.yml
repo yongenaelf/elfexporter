@@ -5,12 +5,14 @@ global:
 alerting:
   alertmanagers:
   - static_configs:
-    - targets: []
+    - targets: 
+      - alertmanager:9093
     scheme: http
     timeout: 10s
-    api_version: v1
+    api_version: v2
 rule_files:
   - /etc/prometheus/rules/*.rules
+  - /etc/prometheus/rules/*.yml
 scrape_configs:
 - job_name: prometheus
   honor_timestamps: true
@@ -20,7 +22,7 @@ scrape_configs:
   scheme: http
   static_configs:
   - targets:
-    - localhost:9090
+    - prometheus:9090
 - job_name: 'elfexporter'
   static_configs:
   - targets:

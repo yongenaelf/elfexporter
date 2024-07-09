@@ -1,0 +1,13 @@
+groups:
+- name: faucet
+  rules:
+
+  # Alert for faucet balance
+  - alert: FaucetBalance
+    expr: aelf_balance < 1000000000000000
+    for: 1s
+    labels:
+      severity: critical
+    annotations:
+      summary: "{{ $value }} ELF remaining in faucet"
+      description: "{{ $labels.address }} has {{ $value }} ELF remaining."

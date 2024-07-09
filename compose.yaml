@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
-      - prom_data:/prometheus
+      - ./prom_data:/prometheus
   grafana:
     image: grafana/grafana
     container_name: grafana
@@ -30,6 +30,18 @@ services:
       - SLEEP_DURATION=15
     volumes:
       - ./addresses.txt:/addresses.txt
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    ports:
+      - "9093:9093"
+  lark-webhook:
+    image: ghcr.io/yongenaelf/lark-alertmanager-webhook:sha-4b4e41b
+    volumes:
+      - ./lark.yml:/app/config/config.yaml
       
 volumes:
   prom_data:

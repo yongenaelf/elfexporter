@@ -62,3 +62,19 @@ aelf_load_seconds 1.15
 aelf_loaded_addresses 4
 aelf_total_addresses 4
 ```
+
+## Lark alertmanager webhook
+
+Source: https://github.com/yongenaelf/lark-alertmanager-webhook
+
+```sh
+cp lark.yml.example lark.yml
+```
+
+Edit the file with the lark bot webhook.
+
+## Test on local
+
+```sh
+docker compose up -d
+```
